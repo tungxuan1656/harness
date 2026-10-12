@@ -25,6 +25,7 @@ test("validator accepts packaged v2, including template and fenced example links
   const result = run(fixture(t));
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stdout, /PASS agent-docs-checker/);
+  assert.match(result.stdout, /PASS repo-skills/);
   assert.match(result.stdout, /PASS skill family layout and local routes/);
 });
 
@@ -56,6 +57,16 @@ test("duplicate evaluation IDs fail rather than silently dropping cases", (t) =>
   assert.equal(result.status, 1);
   assert.match(result.stderr, /duplicate eval id/);
 });
+
+for (const name of ["find-skills", "simple-english"]) {
+  test(`removed ${name} cannot reappear in the package`, (t) => {
+    const root = fixture(t);
+    mkdirSync(join(root, "skills", name));
+    const result = run(root);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, new RegExp(`Removed skill remains packaged: .*${name}`));
+  });
+}
 
 test("index cannot mirror mutable task status", (t) => {
   const root = fixture(t);

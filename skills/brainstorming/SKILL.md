@@ -116,8 +116,8 @@ Otherwise follow the repository's existing planning and implementation rules.
   when installed or write the selected repository-native artifact directly.
 - Do not create `docs/superpowers/` or commit the design unless the repository
   policy or user explicitly requires it.
-- Use `simple-english` if it is installed and the document benefits from its
-  final clarity pass.
+- Give the document a brief clarity pass; preserve technical meaning and
+  exact identifiers without adding a separate writing workflow.
 
 **Spec Self-Review:**
 After writing the spec document, look at it with fresh eyes:

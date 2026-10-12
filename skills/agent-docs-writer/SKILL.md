@@ -113,7 +113,8 @@ Use pragmatic Simplified Technical English for the final pass:
 - Remove filler, hedges, synonym rotation, and unmeasured adjectives.
 - Preserve code, identifiers, commands, paths, configuration keys, and quoted errors exactly.
 
-If the `simple-english` skill is available, use its pragmatic mode. Do not apply strict aerospace vocabulary unless the user requests STE compliance.
+Use clear, direct language. Preserve identifiers, commands, quoted errors,
+and technical meaning; do not impose controlled aerospace vocabulary.
 
 ## Information form
 

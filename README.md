@@ -17,6 +17,7 @@ only routes to it, keeps task-local restart state, and verifies changes.
 | `agent-docs-writer` | Write or repair a selected document | Concise, evidence-based canonical content |
 | `agent-docs-checker` | Check docs drift, consistency, or unnecessary complexity | Read-only, scoped findings against code, tests, and accepted intent |
 | `repo-gardening` | Remove confirmed code/config/artifact residue | Small, separately verified cleanup |
+| `repo-skills` | Select or install skills for an observed repo stack | Reused ponytail/git-commit baseline, justified specialists, approved install scope |
 
 Use the narrowest skill, not a mandatory pipeline. Simplicity assessment lives
 in the docs checker and planning self-checks; no separate mandatory gate.
@@ -72,8 +73,8 @@ startup merely to inspect docs.
 | Plan and execute approved work | `writing-plans`, `executing-plans` |
 | Authorized delegated implementation | `subagent-driven-development` |
 | Debug and verify completion | `systematic-debugging`, `verification-before-completion` |
-| Transfer or communicate work | `handoff`, `simple-english`, `git-commit` |
-| Find additional capabilities | `find-skills` |
+| Transfer or communicate work | `handoff`, `git-commit` |
+| Select repo-specific capabilities | `repo-skills` |
 
 Planning and execution remain separate skills; neither needs duplicated future
 code, tiny mandatory steps, or a commit ritual. Reuse the repository artifact
@@ -89,7 +90,15 @@ npx skills add tungxuan1656/harness-slim --skill harness
 npx skills add tungxuan1656/harness-slim --skill harness-task
 npx skills add tungxuan1656/harness-slim --skill harness-review
 npx skills add tungxuan1656/harness-slim --skill agent-docs-checker
+npx skills add tungxuan1656/harness-slim --skill repo-skills
 ```
+
+`repo-skills` proposes ponytail and git-commit as the baseline, reuses existing
+installations, and selects specialists from the [curated sources](skills/repo-skills/references/curated-skills.md)
+only for observed stack/task needs. When asked to install, it uses the Skills
+CLI defaults in the current repo without asking which agent/CLI to target.
+Default skill directories may be shared; runtime tools and credentials are separate.
+The former generic discovery and controlled-English skills are no longer bundled.
 
 Select other skills by name only when needed. `harness-slim` and
 `harness-slim-review` installations/invocations must be updated explicitly.
@@ -103,6 +112,7 @@ Use $harness to simplify our harness using observed repository commands.
 Use $harness-task to decompose this approved spec into independent tasks.
 Use $agent-docs-checker to check this spec and plan for drift and unnecessary work.
 Use $agent-docs-writer to apply these agreed documentation repairs.
+Use $repo-skills to recommend non-duplicated skills for this repo; do not install yet.
 ```
 
 ## Development checks

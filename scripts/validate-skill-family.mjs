@@ -73,12 +73,15 @@ const skills = [
 ];
 
 skills.push(
+  { name: "repo-skills", files: ["agents/openai.yaml", "references/curated-skills.md", "evals/evals.json"], agent: true, evals: true },
   { name: "agent-docs-checker", files: ["agents/openai.yaml", "evals/evals.json"], agent: true, evals: true },
   ...["writing-plans", "executing-plans", "handoff", "brainstorming"].map((name) => ({ name, files: [] })),
   { name: "subagent-driven-development", files: ["scripts/task-brief", "scripts/sdd-workspace", "scripts/review-package"] },
 );
 
 const removedSkills = [
+  "find-skills",
+  "simple-english",
   "harness-slim",
   "harness-slim-review",
   "harness-router",
