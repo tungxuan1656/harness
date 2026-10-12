@@ -9,7 +9,7 @@ before fetching another copy. No candidate overrides repository policy.
 | Skill | Source | Boundary |
 |---|---|---|
 | `ponytail` | [dietrichgebert/ponytail](https://github.com/dietrichgebert/ponytail), select only `ponytail` | Smallest complete change, scoped checks, explicit omissions. Do not install its audit/review/help bundle by default or activate its session mode merely by installing. |
-| `git-commit` | [Bundled skill](../../git-commit/SKILL.md); if absent, list [this upstream](https://github.com/tungxuan1656/harness-slim) and select `git-commit` | Commits only when requested; repository conventions and safety win. Do not add a second commit skill. |
+| `git-commit` | [github/awesome-copilot](https://github.com/github/awesome-copilot), select only `git-commit`; confirm the current name with `--list` | No bundled copy remains here. Commits only when requested; repository conventions and safety win. Do not add a second commit skill. |
 
 ## Stack and task candidates
 
@@ -23,7 +23,7 @@ before fetching another copy. No candidate overrides repository policy.
 | Supabase SDK, auth, storage, platform operations | `supabase` from [supabase/agent-skills](https://github.com/supabase/agent-skills) | Actual Supabase usage and relevant work. Confirm local/staging/production targets; no credentials, MCP configuration, direct SQL, schema changes, or deployments just to install guidance. |
 | PostgreSQL schema, SQL, RLS, query performance | `supabase-postgres-best-practices` from [supabase/agent-skills](https://github.com/supabase/agent-skills) | PostgreSQL work, even outside hosted Supabase. If also selecting `supabase`, explain the SQL-versus-platform boundary; do not automatically add both. |
 | Web UI/accessibility review | `web-design-guidelines` from [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | A concrete UI review need. This checks implementation, not Harness docs. Its remote guideline fetch is not a substitute for accessibility tests or agreed design. |
-| Module/interface design | `codebase-design` from [mattpocock/skills](https://github.com/mattpocock/skills) | A real design/refactor decision; [the bundled copy](../../codebase-design/SKILL.md) may already suffice. Do not layer a second copy or install the source's planning/orchestration suite. |
+| Module/interface design | `codebase-design` from [mattpocock/skills](https://github.com/mattpocock/skills) | A real design/refactor decision; no bundled copy remains here, so list the source before installing. Do not layer a second copy or install the source's planning/orchestration suite. |
 | Explicit terse-chat preference | `caveman` from [juliusbrussee/caveman](https://github.com/juliusbrussee/caveman), select only `caveman` | User opts into the voice. It is not needed alongside ponytail by default; never rewrite specs, commit messages, or evidence into a terse chat dialect. Do not add caveman commit/review/orchestration variants. |
 
 ## Evidence snapshot

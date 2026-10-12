@@ -86,12 +86,11 @@ scratch/review packages are not canonical task state or a cross-person handoff.
 The upstream repository URL stays unchanged; v2 skill names change.
 
 ```bash
-npx skills add tungxuan1656/harness-slim --skill harness
-npx skills add tungxuan1656/harness-slim --skill harness-task
-npx skills add tungxuan1656/harness-slim --skill harness-review
-npx skills add tungxuan1656/harness-slim --skill agent-docs-checker
-npx skills add tungxuan1656/harness-slim --skill repo-skills
+npx skills add tungxuan1656/harness-slim
 ```
+
+That installs the family. Add `--skill <name>` to install one skill, or
+`--list` to preview names without installing.
 
 `repo-skills` proposes ponytail and git-commit as the baseline, reuses existing
 installations, and selects specialists from the [curated sources](skills/repo-skills/references/curated-skills.md)
