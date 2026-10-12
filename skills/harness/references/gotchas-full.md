@@ -1,6 +1,9 @@
 # Gotchas — Harness Engineering Failure Modes
 
-Non-obvious principles that will cause bugs if you violate them.
+Historical, engine-specific examples retained for reference only. Claims,
+limits, precedence, and APIs are unpinned and may not apply to the current
+host. Validate against its documentation before use; none are Harness v2
+requirements.
 
 ---
 
@@ -30,7 +33,7 @@ Non-obvious principles that will cause bugs if you violate them.
 ```bash
 # Test priority ordering
 cat ~/.claude/CLAUDE.md          # User level
-cat ./CLAUDE.md                   # Project level  
+cat ./CLAUDE.md                   # Project level
 cat ./CLAUDE.local.md             # Local override (WINS)
 ```
 
@@ -203,7 +206,5 @@ registry.register('shell', {
 ## Related Reading
 
 - [Memory Persistence Pattern](memory-persistence-pattern.md) — Gotchas #1, #3, #4, #15
-- [Tool Registry Pattern](tool-registry-pattern.md) — Gotchas #5, #6, #13
 - [Multi-agent Pattern](multi-agent-pattern.md) — Gotchas #8, #11
 - [Context Engineering Pattern](context-engineering-pattern.md) — Gotchas #9
-- [Lifecycle Pattern](lifecycle-bootstrap-pattern.md) — Gotchas #10, #14

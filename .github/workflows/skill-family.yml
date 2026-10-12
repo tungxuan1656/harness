@@ -5,24 +5,14 @@ on:
     paths:
       - ".github/workflows/skill-family.yml"
       - "README.md"
-      - "docs/**"
-      - "scripts/validate-skill-family.mjs"
-      - "skills/harness-slim/**"
-      - "skills/harness-slim-review/**"
-      - "skills/harness-slim-gardenring/**"
-      - "skills/agent-docs-architect/**"
-      - "skills/agent-docs-writer/**"
+      - "scripts/**"
+      - "skills/**"
   push:
     paths:
       - ".github/workflows/skill-family.yml"
       - "README.md"
-      - "docs/**"
-      - "scripts/validate-skill-family.mjs"
-      - "skills/harness-slim/**"
-      - "skills/harness-slim-review/**"
-      - "skills/harness-slim-gardenring/**"
-      - "skills/agent-docs-architect/**"
-      - "skills/agent-docs-writer/**"
+      - "scripts/**"
+      - "skills/**"
 
 permissions:
   contents: read
@@ -32,9 +22,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
       - run: node scripts/validate-skill-family.mjs
-      - run: bash -n skills/harness-slim/templates/init.sh
+      - run: node --test scripts/test-*.mjs
+      - run: bash -n skills/harness/templates/init.sh
+      - run: git diff --check

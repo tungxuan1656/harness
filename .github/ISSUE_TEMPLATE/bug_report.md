@@ -12,7 +12,7 @@ assignees: ""
 
 ## Affected skill or path
 
-<!-- For example: skills/harness-slim/SKILL.md or skills/agent-docs-writer/SKILL.md -->
+<!-- For example: skills/harness/SKILL.md or skills/agent-docs-writer/SKILL.md -->
 
 ## Steps to reproduce
 

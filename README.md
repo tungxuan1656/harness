@@ -1,144 +1,124 @@
-# Harness
+# Harness v2
 
-A compact core skill family for making coding agents useful in real
-repositories. It keeps agent context focused: establish a small working
-harness, assess it without changing it, remove proven drift, and keep
-repository knowledge easy to find and maintain.
-
-Optional companion skills add design, planning, execution, quality, and
-communication workflows. They remain independently installable; choose a
-profile that fits the work instead of installing every skill.
+A small skill family for practical coding-agent work. Canonical specs, plans,
+decisions, design docs, and architecture carry the knowledge. The harness
+only routes to it, keeps task-local restart state, and verifies changes.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> The best harness is small enough that an agent can follow it consistently.
+## Skills
 
-## Core skills
-
-| Skill | Use when | Primary result |
+| Skill | Use when | Result |
 |---|---|---|
-| `harness-slim` | A repository needs a compact, feature-driven operating harness | `AGENTS.md`, feature state, progress, and evidence-backed `init.sh` |
-| `harness-task` | Incoming work in a Harness Slim repository needs the lightest safe artifact level | No feature, an inline feature plan, or a separate linked plan |
-| `harness-slim-review` | You need an evidence-based assessment before changing a harness | Read-only verdict and prioritized fixes |
-| `repo-gardening` | Proven code, configuration, dependency, or related-artifact drift needs a safe cleanup | One small, verified cleanup batch and a guardrail when justified |
-| `agent-docs-architect` | The documentation structure, ownership, or routes are unclear | A minimal documentation blueprint and writer handoff |
-| `agent-docs-writer` | A selected agent-facing document needs to be written or revised | Concise, routed, evidence-based documentation |
+| `harness` | Create or simplify a repository harness | Short `AGENTS.md`, justified task artifacts, minimal `init.sh` |
+| `harness-task` | Size work or decompose an approved spec | No record, inline task plan, or justified separate plan |
+| `harness-review` | Assess the operating harness | Read-only findings and smallest repairs |
+| `agent-docs-architect` | Documentation ownership or routes are unclear | Minimal blueprint, existing sources reused |
+| `agent-docs-writer` | Write or repair a selected document | Concise, evidence-based canonical content |
+| `agent-docs-checker` | Check docs drift, consistency, or unnecessary complexity | Read-only, scoped findings against code, tests, and accepted intent |
+| `repo-gardening` | Remove confirmed code/config/artifact residue | Small, separately verified cleanup |
 
-Use the narrowest matching skill. `harness-task` is an intake policy that
-chooses feature and plan artifacts; it does not orchestrate other skills. There
-is no router skill or generated fallback phase system.
+Use the narrowest skill, not a mandatory pipeline. Simplicity assessment lives
+in the docs checker and planning self-checks; no separate mandatory gate.
+`harness-task` chooses artifacts, not agents or orchestration.
 
-## Optional companion profiles
-
-Install optional skills only when their workflow is useful. They do not replace
-the core contracts or create their own documentation tree.
-
-| Profile | Skills | Use for |
-|---|---|---|
-| Product and design | `brainstorming`, `codebase-design` | Clarify a substantial change and design module seams |
-| Planning and execution | `writing-plans`, `executing-plans`, `subagent-driven-development` | Plan and execute a multi-step change |
-| Quality | `systematic-debugging`, `verification-before-completion` | Investigate failures and make evidence-backed completion claims |
-| Communication | `simple-english`, `handoff`, `git-commit` | Improve technical prose, transfer context, or create a commit when requested |
-| Discovery | `find-skills` | Find an additional capability outside this family |
-
-When these skills create or update an artifact, they must first reuse the
-repository's documented owner and path. With Harness Slim, substantial work
-that needs durable phases, coordination, recovery, or risk control uses
-`docs/plans/feat-<id>.md` linked from its feature record. Do not create
-`docs/superpowers/` as a fallback. If an artifact's owner or path is unclear,
-use `agent-docs-architect`; if it is known, use `agent-docs-writer`.
-
-## Typical flow
+## Work contracts
 
 ```text
-Need a working agent harness        -> harness-slim
-Need to size feature/plan artifacts -> harness-task
-Need to assess that harness         -> harness-slim-review
-Need to remove proven drift         -> repo-gardening
-Need to choose the docs system      -> agent-docs-architect
-Need to write one chosen document -> agent-docs-writer
+AGENTS.md                     # router and repository-specific invariants
+init.sh                       # minimal verification entrypoint
+tasks/index.md                # requested roadmap/navigation, not status
+tasks/task-<slug>.md           # only work that needs persistent state
+docs/plans/task-<slug>.md      # only when separate sequencing is justified
 ```
 
-`agent-docs-architect` selects document ownership and reading routes.
-`agent-docs-writer` creates or revises the selected documents. `harness-slim`
-uses the repository's existing canonical documents instead of replacing them
-with a universal documentation tree.
+- Small, clear, reversible work and read-only requests need no task file.
+- A task/tracker owns scope, acceptance, owner, dependencies, status, evidence,
+  blockers, and next action. No root `progress.md` or mirrored tracker state.
+- Keep the requested index for roadmap and links; update it for membership or
+  scope changes, not every execution update. Dependencies remain in tasks/tracker.
+- Independent tasks can be active concurrently. Descriptive or tracker IDs
+  replace global counters; coordinate overlapping source changes separately.
+- Distinguish dependencies needed to start from integration/release gates.
+  Split specs into verifiable deliverables; use epics/subtasks only when useful.
+- Plans stay inline by default. A separate plan needs durable sequencing,
+  coordination, recovery, or risk controls, not a file-count threshold.
 
-For documentation maintenance, route a bounded repair of known documents to
-`agent-docs-writer`. Route unclear ownership or hierarchy to
-`agent-docs-architect`. `repo-gardening` changes documentation only when it is
-direct residue of a confirmed code, configuration, dependency, or artifact
-cleanup.
+Reuse adequate native filenames and accessible trackers. Keep durable behavior
+and rationale in specs, decisions, architecture, and tests, not task history.
+At closure extract that knowledge, check inbound links/dependents and retention
+policy, then retain, selectively archive, or remove disposable tasks.
+Cross-person handoffs need an accessible tracker, PR, branch, or commit, not
+a local temporary file; disclose uncommitted work.
 
-## Harness Slim artifacts
+## Verification
 
-When repository evidence supports a compact feature harness, `harness-slim`
-maintains these coordinated artifacts:
+`init.sh` uses Bash strict mode, script-directory resolution, and a sequential
+`run_check` wrapper that preserves failures. Use the observed read-only root
+check (for example `pnpm run check`) when it already owns coverage/concurrency.
+Do not fix source, install dependencies, swallow errors, invent scripts, or
+add a Bash job scheduler. Build/cache/test outputs can still be written.
 
-```text
-AGENTS.md
-feature_index.json
-features/feat-template.md
-features/feat-<id>.md
-progress.md
-init.sh
-```
+The distributed template explicitly skips unconfigured project checks and
+reports only configured checks, not full verification. Replace that gap with
+actual commands before claiming repository coverage. Do not run it on every
+startup merely to inspect docs.
 
-`AGENTS.md` requires an assessment of project scale, task complexity, and
-impact before feature, plan, or progress artifacts are created. The index uses
-`todo`, `active`, `blocked`, and `done`; keep zero or one feature active.
-`progress.md` is append-only feature state: add a record below its final
-template note only when a material result, blocker, handoff, or next action
-changes. `init.sh` is an editable Bash workflow based only on observed
-repository commands.
+## Optional companions
 
-Lightweight work needs no feature. Keep bounded tracked work in its feature
-record. For substantial work that needs a durable plan, link
-`docs/plans/feat-<id>.md` from that record. Existing repository-native
-documents, commands, and trackers remain canonical when they already serve the
-needed purpose.
+| Need | Skills |
+|---|---|
+| Resolve behavior or design choices | `brainstorming`, `codebase-design` |
+| Plan and execute approved work | `writing-plans`, `executing-plans` |
+| Authorized delegated implementation | `subagent-driven-development` |
+| Debug and verify completion | `systematic-debugging`, `verification-before-completion` |
+| Transfer or communicate work | `handoff`, `simple-english`, `git-commit` |
+| Find additional capabilities | `find-skills` |
 
-## Install
+Planning and execution remain separate skills; neither needs duplicated future
+code, tiny mandatory steps, or a commit ritual. Reuse the repository artifact
+owner/path; do not create a fallback `docs/superpowers/` tree. Optional agent
+scratch/review packages are not canonical task state or a cross-person handoff.
 
-Install only the skills you need:
+## Install and migrate
+
+The upstream repository URL stays unchanged; v2 skill names change.
 
 ```bash
-npx skills add tungxuan1656/harness-slim
-npx skills add tungxuan1656/harness-slim --skill harness-slim
+npx skills add tungxuan1656/harness-slim --skill harness
 npx skills add tungxuan1656/harness-slim --skill harness-task
-npx skills add tungxuan1656/harness-slim --skill harness-slim-review
-npx skills add tungxuan1656/harness-slim --skill repo-gardening
-npx skills add tungxuan1656/harness-slim --skill agent-docs-architect
-npx skills add tungxuan1656/harness-slim --skill agent-docs-writer
+npx skills add tungxuan1656/harness-slim --skill harness-review
+npx skills add tungxuan1656/harness-slim --skill agent-docs-checker
 ```
 
-Example prompts:
+Select other skills by name only when needed. `harness-slim` and
+`harness-slim-review` installations/invocations must be updated explicitly.
+Managed v1 repositories do not migrate automatically. See the
+[migration guide](skills/harness/references/migration-v2.md) and
+[changelog](skills/harness/CHANGELOG.md). Preserve legacy history and resolve
+contradictory owners/state before switching live routes.
 
 ```text
-Use $harness-slim to create a concise evidence-based harness for this repository.
-Use $harness-task to choose the lightest safe feature and plan artifacts for this request.
-Use $harness-slim-review to audit the current harness without modifying files.
-Use $repo-gardening to remove one verified batch of duplicated helpers.
-Use $agent-docs-architect to propose the smallest documentation architecture we need.
-Use $agent-docs-writer to rewrite AGENTS.md using the accepted documentation map.
+Use $harness to simplify our harness using observed repository commands.
+Use $harness-task to decompose this approved spec into independent tasks.
+Use $agent-docs-checker to check this spec and plan for drift and unnecessary work.
+Use $agent-docs-writer to apply these agreed documentation repairs.
 ```
 
 ## Development checks
 
-The source of truth for each skill is its `SKILL.md`. Run the deterministic
-layout check after changing this family:
-
 ```bash
 node scripts/validate-skill-family.mjs
-bash -n skills/harness-slim/templates/init.sh
+node --test scripts/test-*.mjs
+bash -n skills/harness/templates/init.sh
+git diff --check
 ```
 
-The layout check verifies the six active skill packages, their required local
-resources, agent metadata where supplied, and the task and architect evaluation
-corpora. It does not claim that model behavior has passed; validate meaningful
-changes against representative repositories.
-
-The contributor-oriented design notes live in [docs/README.md](docs/README.md).
+The validator checks package resources, metadata, local Markdown routes, and
+eval-corpus shape. Shell tests exercise actual success/failure, check coverage
+boundaries, staged/unstaged whitespace, and execution from another directory.
+Eval scenarios are regression inputs, not proof that model behavior passed.
+Representative repository trials remain necessary for behavioral claims.
 
 ## References
 
@@ -147,7 +127,5 @@ The contributor-oriented design notes live in [docs/README.md](docs/README.md).
 - [OpenAI: Harness Engineering](https://openai.com/index/harness-engineering/)
 
 Inspired in part by [walkinglabs/learn-harness-engineering](https://github.com/walkinglabs/learn-harness-engineering).
-
-## License
 
 [MIT](LICENSE)

@@ -1,10 +1,25 @@
-# Changelog — harness-slim
+# Changelog — harness (formerly harness-slim)
 
 All notable changes to `harness-slim` templates and mirrored rules. Agent reads only entries between installed repo marker and current skill `metadata.json` version.
 
 Maintainer rule: every change that affects `templates/*` or rules mirrored into `AGENTS.md`/`init.sh` must bump `metadata.json` version and add an entry here. Archive old majors to `CHANGELOG.archive.md` when this file exceeds ~2 major versions.
 
 Types: `breaking-rules` (AGENTS.md rules), `breaking-script` (init.sh structure), `additive` (new field/section), `non-breaking-doc` (skill-side docs only, no repo action).
+
+## 2.0.0
+
+Breaking update. Migrate managed repositories only with approval using
+[the migration guide](references/migration-v2.md); do not regenerate or delete history.
+
+| Change | Artifact | Type | Update action |
+|---|---|---|---|
+| Skill names become `harness` and `harness-review` | Skill packages/invocations | breaking-rules | Update installed selections and live routes; repository URL unchanged |
+| Tasks replace feature index and shared progress | `tasks/task-<slug>.md`, optional `tasks/index.md`, `AGENTS.md` | breaking-rules | Move canonical execution state to tasks/tracker; index is roadmap only; preserve old history |
+| Task-local ownership/concurrency and dependency gates | Task, router | breaking-rules | Remove global active limit/counter; distinguish start vs integrate/release gates |
+| Inline plans by default; no numeric thresholds or mandatory microsteps | Planning skills/task | breaking-rules | Keep adequate native paths; separate plan only for coordination, sequencing, or recovery |
+| Sequential check-only Bash wrapper | `init.sh` | breaking-script | Replace arrays/scheduler/fix commands with observed root check or explicit checks; expose coverage gaps |
+| Read-only docs drift/simplicity assessment | `agent-docs-checker` | additive | Install only when needed; no mandatory audit pipeline |
+| Task closure extracts durable knowledge; archive selectively | Task/router | breaking-rules | Check links, consumers, dependents, and retention before removal |
 
 ## 1.4.0 — 2026-08-21
 

@@ -11,7 +11,8 @@
 <!-- Include exact commands and results. -->
 
 - [ ] `node scripts/validate-skill-family.mjs`
-- [ ] `bash -n skills/harness-slim/templates/init.sh` when the template changed
+- [ ] `node --test scripts/test-*.mjs`
+- [ ] `bash -n skills/harness/templates/init.sh` when the template changed
 - [ ] Exercised the changed skill against a representative repository or prompt
 
 ## Checklist

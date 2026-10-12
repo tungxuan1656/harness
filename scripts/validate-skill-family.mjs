@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { access, readFile } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 import { constants } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,19 +9,22 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 const skills = [
   {
-    name: "harness-slim",
+    name: "harness",
     files: [
       "PROVENANCE.md",
       "metadata.json",
       "agents/openai.yaml",
       "templates/agents.md",
-      "templates/feature_index.json",
-      "templates/feat-template.md",
-      "templates/progress.md",
+      "CHANGELOG.md",
+      "evals/evals.json",
+      "references/migration-v2.md",
+      "templates/task-template.md",
+      "templates/task-index.md",
       "templates/init.sh",
     ],
     agent: true,
     metadata: true,
+    evals: true,
   },
   {
     name: "harness-task",
@@ -35,7 +38,7 @@ const skills = [
     implicit: true,
   },
   {
-    name: "harness-slim-review",
+    name: "harness-review",
     files: ["agents/openai.yaml", "references/review-rubric.md"],
     agent: true,
   },
@@ -69,7 +72,15 @@ const skills = [
   },
 ];
 
+skills.push(
+  { name: "agent-docs-checker", files: ["agents/openai.yaml", "evals/evals.json"], agent: true, evals: true },
+  ...["writing-plans", "executing-plans", "handoff", "brainstorming"].map((name) => ({ name, files: [] })),
+  { name: "subagent-driven-development", files: ["scripts/task-brief", "scripts/sdd-workspace", "scripts/review-package"] },
+);
+
 const removedSkills = [
+  "harness-slim",
+  "harness-slim-review",
   "harness-router",
   "harness-map",
   "harness-specs",
@@ -160,62 +171,43 @@ function validateEvals(source, path, expectedName) {
   }
 }
 
-async function validateHarnessSlimContract(directory) {
-  const skillPath = resolve(directory, "SKILL.md");
-  const skill = await readRequired(skillPath);
-  assert(
-    skill.includes("| `features/feat-template.md` | Reusable feature document template |"),
-    `${skillPath}: feature template must be created in features/`,
-  );
-  assert(
-    skill.includes("Do not reference `.agents/README.md` from `AGENTS.md`."),
-    `${skillPath}: AGENTS.md must not reference .agents/README.md`,
-  );
+async function validateHarnessContract(directory) {
+  const metadataPath = resolve(directory, "metadata.json");
+  const metadata = JSON.parse(await readRequired(metadataPath));
+  assert(metadata.version === "2.0.0", `${metadataPath}: expected v2 contract`);
+  for (const path of [...metadata.references, ...metadata.bundled.templates, ...metadata.bundled.scripts]) {
+    await readRequired(resolve(directory, path));
+  }
+  for (const name of ["feature_index.json", "feat-template.md", "progress.md"]) {
+    assert(!(await exists(resolve(directory, "templates", name))), `Legacy template remains packaged: ${name}`);
+  }
+  const taskPath = resolve(directory, "templates/task-template.md");
+  const task = await readRequired(taskPath);
+  for (const field of ["Status", "Owner", "Required to start", "Required to integrate/release"]) {
+    assert(task.includes(`- ${field}:`), `${taskPath}: missing ${field}`);
+  }
+  const indexPath = resolve(directory, "templates/task-index.md");
+  const index = await readRequired(indexPath);
+  assert(!/^- (Status|Owner|Depends on):|\|\s*(Status|Owner|Depends on)\s*\|/mi.test(index), `${indexPath}: must not mirror task state`);
+  const agentsPath = resolve(directory, "templates/agents.md");
+  assert(!(await readRequired(agentsPath)).includes(".agents/README.md"), `${agentsPath}: invalid router path`);
+}
 
-  const featureTemplatePath = resolve(directory, "templates/feat-template.md");
-  const featureTemplate = await readRequired(featureTemplatePath);
-  assert(
-    featureTemplate.includes(
-      "<!-- Bounded (default): 1-3 files, 1 workspace, <200 lines. Substantial: >=4 files or >=2 workspaces, DB migration/breaking API, or needs phases/rollback -> use docs/plans/{{FEATURE_ID}}.md (needs >=2 substantial signals). -->",
-    ),
-    `${featureTemplatePath}: plan guidance is incorrect`,
-  );
+async function validateMarkdownLinks(path) {
+  const source = (await readRequired(path)).replace(/^```[^\n]*\n[\s\S]*?^```.*$/gm, "");
+  for (const [, target] of source.matchAll(/\[[^\]\n]*\]\(([^\s)]+)\)/g)) {
+    if (/^(?:[a-z][a-z0-9+.-]*:|#)|[<>{}]/i.test(target)) continue;
+    const destination = decodeURIComponent(target.split("#")[0]);
+    assert(await exists(resolve(dirname(path), destination)), `${path}: broken local link ${target}`);
+  }
+}
 
-  const progressTemplatePath = resolve(directory, "templates/progress.md");
-  const progressTemplate = await readRequired(progressTemplatePath);
-  const expectedProgressTemplate = `# Progress
-
-<!-- Log template -->
-
-## YYYY-MM-DD — feat-001
-
-**State**: todo
-**Done**: —
-**Evidence**: —
-**Blockers**: none
-**Next**: Define the feature scope and acceptance criteria.
-
-<!-- Add each new block below this note. Do not edit older blocks. -->
-`;
-  assert(
-    progressTemplate === expectedProgressTemplate,
-    `${progressTemplatePath}: must preserve the append-only log template`,
-  );
-
-  const agentsTemplatePath = resolve(directory, "templates/agents.md");
-  const agentsTemplate = await readRequired(agentsTemplatePath);
-  assert(
-    !agentsTemplate.includes(".agents/README.md"),
-    `${agentsTemplatePath}: AGENTS.md must not reference .agents/README.md`,
-  );
-  assert(
-    agentsTemplate.includes("assess the task's project scale, complexity, and impact"),
-    `${agentsTemplatePath}: task assessment policy is missing`,
-  );
-  assert(
-    agentsTemplate.includes("run proportional verification without updating feature or progress state"),
-    `${agentsTemplatePath}: lightweight-work verification policy is missing`,
-  );
+async function validateMarkdownTree(directory) {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const path = resolve(directory, entry.name);
+    if (entry.isDirectory()) await validateMarkdownTree(path);
+    else if (entry.name.endsWith(".md")) await validateMarkdownLinks(path);
+  }
 }
 
 async function validateSkill(skill) {
@@ -246,9 +238,11 @@ async function validateSkill(skill) {
     assert(metadata.name === skill.name, `${metadataPath}: name mismatch`);
   }
 
-  if (skill.name === "harness-slim") {
-    await validateHarnessSlimContract(directory);
+  if (skill.name === "harness") {
+    await validateHarnessContract(directory);
   }
+
+  await validateMarkdownTree(directory);
 
   if (skill.evals) {
     const evalPath = resolve(directory, "evals/evals.json");
@@ -268,7 +262,8 @@ async function main() {
     assert(!(await exists(path)), `Removed skill remains packaged: ${path}`);
   }
 
-  process.stdout.write("PASS skill family layout\n");
+  await validateMarkdownLinks(resolve(repositoryRoot, "README.md"));
+  process.stdout.write("PASS skill family layout and local routes\n");
 }
 
 main().catch((error) => {

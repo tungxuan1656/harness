@@ -1,12 +1,14 @@
 {
-  "name": "harness-slim",
-  "version": "1.4.0",
-  "description": "Create compact coding-agent harnesses by inspecting repository evidence and writing concise instructions, feature state, progress, and editable Bash verification.",
+  "name": "harness",
+  "version": "2.0.0",
+  "description": "Create a compact task-local coding-agent harness with canonical documentation routes and minimal check-only Bash verification.",
   "license": "MIT",
   "author": "tungxuan1656",
   "publisher": "tungxuan1656",
   "repository": "https://github.com/tungxuan1656/harness-slim",
-  "languages": ["en"],
+  "languages": [
+    "en"
+  ],
   "compatibility": {
     "agents": [
       "claude-code",
@@ -22,7 +24,8 @@
     "references/context-engineering-pattern.md",
     "references/multi-agent-pattern.md",
     "references/gotchas.md",
-    "references/gotchas-full.md"
+    "references/gotchas-full.md",
+    "references/migration-v2.md"
   ],
   "triggers": [
     "harness engineering",
@@ -33,24 +36,22 @@
     "scope control",
     "lifecycle management",
     "AGENTS.md",
-    "feature_index.json",
-    "feature documents",
-    "feature tracking",
-    "progress.md",
     "init.sh",
     "monorepo verification",
-    "parallel build and test",
     "multi-agent coordination",
-    "context engineering"
+    "context engineering",
+    "task decomposition",
+    "task tracking",
+    "tasks/index.md",
+    "canonical documentation"
   ],
   "bundled": {
     "scripts": [],
     "templates": [
       "templates/agents.md",
-      "templates/feat-template.md",
-      "templates/feature_index.json",
-      "templates/init.sh",
-      "templates/progress.md"
+      "templates/task-template.md",
+      "templates/task-index.md",
+      "templates/init.sh"
     ]
   }
 }

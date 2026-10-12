@@ -1,4 +1,4 @@
-# harness-slim provenance
+# harness provenance
 
 This manifest records the sources named by the repository documentation. The
 URLs below are inspiration/reference sources, not claims that their text or
@@ -14,7 +14,7 @@ code is bundled here.
 
 ## Local modifications
 
-`harness-slim` is the local implementation in this repository. Its
+`harness` is the v2 successor to `harness-slim` in this repository. Its
 documentation, scripts, templates, and references are maintained here and may
 diverge from the listed sources. The existing README identifies walkinglabs as
 the original prototype and the Anthropic/OpenAI material as lessons applied by
