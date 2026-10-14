@@ -2,6 +2,7 @@
 
 - Status: todo
 - Owner: {{TASK_OWNER}}
+<!-- Dependencies: 'none', '[Dependency title](task-<slug>.md)', or manual condition text -->
 - Required to start: none
 - Required to integrate/release: none
 

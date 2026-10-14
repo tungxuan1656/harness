@@ -58,7 +58,7 @@ For a local task:
 - Start only user-approved work. Distinguish dependencies required to start
   from those required to integrate/release; do not serialize independent implementation.
 - For parallel edits, agree file ownership or integration order; a task file is not a lock.
-- To inspect start readiness across local tasks without scanning every file manually, run `node <path-to-skill>/scripts/task-ready.mjs [tasks-dir]`.
+- To inspect start readiness across local tasks when choosing next work, run `node <path-to-skill>/scripts/task-ready.mjs [tasks-dir]`. Do not run for assigned tasks; readiness does not grant approval to start backlog work.
 - Update only this task's evidence and handoff when state materially changes.
 - Mark done only when acceptance passes and relevant verification evidence is recorded.
 

@@ -26,7 +26,7 @@ accepted product or architecture decision from implementation alone.
 - Use `todo`, `active`, `blocked`, or `done`. Independent tasks can be active concurrently.
 - Name the task owner; coordinate overlapping files before parallel edits. Task records are not locks.
 - Record start dependencies separately from integrate/release gates. Do not start unapproved backlog work.
-- To find unblocked start candidates without reading every task file, inspect `todo` tasks with completed start dependencies and no blockers, or run `node <path-to-harness>/scripts/task-ready.mjs [tasks/]` when available.
+- When asked what to do next or choosing unblocked work, check candidates (`todo`, completed start requirements, no blockers) via `node <path-to-harness>/scripts/task-ready.mjs [tasks/]`. Do not run when assigned a specific task; technical readiness does not bypass user approval.
 
 ## Verification and handoff
 

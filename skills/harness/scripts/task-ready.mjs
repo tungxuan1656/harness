@@ -34,7 +34,7 @@ export function parseTask(file, text) {
     ["todo", "active", "blocked", "done"].includes(status),
     `${file}: invalid status ${status}`,
   );
-  const start = field("Required to start");
+  const start = field("Required to start").replace(/<!--[\s\S]*?-->/g, "").trim();
   const dependencies = [];
   const remainingGate = start
     .replace(/\[[^\]]+\]\(([^)]+)\)/g, (match, target) => {
