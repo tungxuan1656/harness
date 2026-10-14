@@ -38,7 +38,12 @@ to find unblocked candidates without reading every task into context.
 
 Reuse accessible external tracking that owns the required truth; do not mirror
 its status locally. Otherwise use `tasks/task-<slug>.md` or the repository's
-native task path. Use tracker IDs or descriptive slugs, not global counters.
+native task path. Local tasks need a persistent numeric ID (`#42`), separate
+from their descriptive slug. Use the installed harness `task-id.mjs create`
+allocator, not a manually chosen number; follow [task IDs](../harness/references/task-ids.md).
+Resolve an assigned `#42` with `task-id.mjs resolve tasks/ '#42'`, read that
+file and its acceptance before implementing, and use its ID in reports/handoffs.
+Never create a new task merely because the user referenced an existing ID.
 Each local task owns its status, owner, evidence, blockers, and next action.
 Independent tasks can be active concurrently. Coordinate overlapping files;
 a task document does not reserve them.

@@ -51,8 +51,11 @@ count and diff size are not decision rules.
 
 For a local task:
 
-- Reuse the tracker ID or a descriptive `task-<slug>`; do not allocate global counters.
-- Check the tracker and known concurrent work for a conflicting ID or scope.
+- Reuse the canonical tracker ID; otherwise allocate a persistent local numeric ID
+  with `node <path-to-skill>/scripts/task-id.mjs create tasks/ <slug> "<title>" "<owner>"`.
+  Follow [task IDs](references/task-ids.md) for creation, lookup, migration, and concurrency.
+- Refer to local tasks as `#42 - Title`; preserve the ID across renames and closure.
+  Check known concurrent work for conflicting scope; do not hand-allocate numbers.
 - Keep `todo`, `active`, `blocked`, or `done` in the task, not a second index.
 - Name its owner. Several independent tasks can be active at once.
 - Start only user-approved work. Distinguish dependencies required to start
@@ -119,6 +122,7 @@ unless its risk or handoff independently requires one.
 
 Read only for the current need:
 
+- [Task IDs](references/task-ids.md): persistent local IDs, allocation, lookup, and upgrades
 - [Migration](references/migration-v2.md): existing v1 harnesses
 - [Memory](references/memory-persistence-pattern.md): cross-session restart
 - [Context](references/context-engineering-pattern.md): context pressure

@@ -8,6 +8,7 @@ of making a local copy. Link durable specs and decisions rather than repeating t
 ```markdown
 # <task-id> - <title>
 
+- ID: <permanent positive integer, for Harness local tasks>
 - Status: <todo | active | blocked | done>
 - Owner: <person or agent>
 - Required to start: <task link or none>
@@ -35,6 +36,10 @@ of making a local copy. Link durable specs and decisions rather than repeating t
 - Blockers: <blocker or none>
 - Next: <one action or none when complete>
 ```
+
+For Harness local tasks, use the [ID allocator](../../harness/references/task-ids.md)
+and reference the stored number as `#42 - Title`. Preserve IDs during document
+repairs, renames, and closure; external trackers keep their native IDs.
 
 Keep only necessary sections. Status and owner have one location, not a second
 index. Independent tasks can be active; coordinate overlapping files separately.

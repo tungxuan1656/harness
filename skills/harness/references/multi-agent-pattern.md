@@ -1,13 +1,16 @@
 # Concurrent Task Coordination
 
 Each task or canonical tracker owns its own state and handoff. Independent
-tasks can be active concurrently; no shared mutable index, global counter, or
-root progress log is needed. A requested roadmap index links to tasks and
+tasks can be active concurrently; no shared execution-state index or
+root progress log is needed. The local ID allocator maintains only a durable
+project-local sequence, not status or a global active-work limit. A requested roadmap index links to tasks and
 changes only with membership/scope; it does not mirror execution state.
 
 Before parallel writes:
 
-1. Assign unique tracker-derived IDs or descriptive task slugs and named owners.
+1. Use canonical tracker IDs or allocate permanent local `#42` IDs and named owners
+   following [task IDs](./task-ids.md). Allocate in the canonical checkout before
+   parallel worktrees/clones; its allocator lock does not span separate workspaces.
 2. Check known concurrent work, not just the current checkout, for collisions.
 3. Agree file ownership or integration order for overlapping changes.
 4. Distinguish start dependencies from integrate/release gates; define

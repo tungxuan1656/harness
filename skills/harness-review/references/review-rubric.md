@@ -7,7 +7,8 @@ Apply only what the repository actually needs.
 | Router | Exact routes, repository-specific invariants, proportional verification, explicit escalation |
 | Task sizing | No record for lightweight work; inline by default; separate plans justified by risk or coordination |
 | Canonical state | Task or tracker owns status, owner, evidence, and handoff; no duplicated status index |
-| Concurrent work | Independent tasks can be active; overlapping file edits have an agreed owner/integration order |
+| Task identity | Permanent local numeric IDs or canonical tracker IDs; no manual allocation, renumbering, or reuse; resolve assigned IDs before execution |
+| Concurrent work | Independent tasks can be active; overlapping file edits have an agreed owner/integration order; allocate IDs in the canonical checkout before parallel clones/worktrees |
 | Scope | Approved goal, non-goals, acceptance, and required dependencies are explicit |
 | Restart | Selected task gives latest useful evidence, blockers, and next action without loading root history |
 | Done | Acceptance and relevant checks pass; evidence names commands and actual results |

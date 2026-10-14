@@ -18,6 +18,9 @@ Subagent (general-purpose):
     ## Context
 
     [Scene-setting: where this fits, dependencies, architectural context]
+    [Canonical task: #<ID> - <title>, file/tracker path, when tracked]
+    Keep the canonical ID in your report; Task N is plan-local numbering.
+    Do not allocate a new project ID for this implementation step.
 
     ## Before You Begin
 

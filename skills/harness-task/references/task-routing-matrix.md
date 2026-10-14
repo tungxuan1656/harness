@@ -24,7 +24,9 @@ must coordinate. Never invent phases to justify a plan.
 ## State and concurrency
 
 Keep status and material handoff in the selected task or tracker only. Several
-independent tasks can be active. Use unique descriptive or tracker-derived IDs,
-a named owner, and agreed file ownership for overlapping edits. Check known
-concurrent work as well as the current checkout before choosing a task ID.
+independent tasks can be active. Use canonical tracker IDs or persistent local
+`#42` IDs allocated by the harness, a named owner, and agreed file ownership for
+overlapping edits. Follow [task IDs](../../harness/references/task-ids.md); allocate
+in the canonical checkout before parallel worktrees/clones. Never choose a number
+from the current list position or create another task for an assigned ID.
 Do not modify unrelated tasks, a shared mutable index, or a root progress log.

@@ -76,3 +76,12 @@ test("index cannot mirror mutable task status", (t) => {
   assert.equal(result.status, 1);
   assert.match(result.stderr, /must not mirror task state/);
 });
+
+test("task template must include a persistent ID field", (t) => {
+  const root = fixture(t);
+  const path = join(root, "skills/harness/templates/task-template.md");
+  writeFileSync(path, readFileSync(path, "utf8").replace("- ID: {{TASK_NUMBER}}\n", ""));
+  const result = run(root);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /missing ID/);
+});

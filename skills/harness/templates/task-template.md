@@ -1,8 +1,9 @@
 # {{TASK_ID}} - {{TASK_TITLE}}
 
+- ID: {{TASK_NUMBER}}
 - Status: todo
 - Owner: {{TASK_OWNER}}
-<!-- Dependencies: 'none', '[Dependency title](task-<slug>.md)', or manual condition text -->
+<!-- Dependencies: 'none', '#42', '[#42 - Title](task-<slug>.md)', or manual condition text -->
 - Required to start: none
 - Required to integrate/release: none
 

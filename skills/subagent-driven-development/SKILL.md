@@ -122,7 +122,10 @@ a ledger file, not only in todos.
 The ledger is internal recovery scratch, not shared task state. When a
 canonical task/tracker exists, identify it at setup and keep its material
 status, evidence, blockers, and next action current at handoffs. Do not create
-a second canonical log or copy the full ledger into it.
+a second canonical log or copy the full ledger into it. For Harness local tasks,
+resolve the enclosing `#42` before dispatch and include that ID plus its canonical
+file path in briefs and reports. Plan-local `Task N` is a step number, not a new
+project task ID; subagents must not allocate replacement IDs.
 
 - Each plan owns a workspace: at skill start, run this skill's
   `scripts/sdd-workspace PLAN_FILE` — it prints the plan's git-ignored

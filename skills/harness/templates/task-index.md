@@ -6,6 +6,6 @@ Update this index only when roadmap scope or task membership changes.
 
 ## <Outcome or optional epic>
 
-- [<Task title>](task-<slug>.md) - <One-line outcome>
+- [#<ID> - <Task title>](task-<slug>.md) - <One-line outcome>
 
 <!-- Omit groups for a short list. Do not mirror execution state here. -->

@@ -16,7 +16,9 @@ skill only when it helps that action, not a mandatory pipeline.
 Do not duplicate content already captured in other artifacts (specs, plans,
 ADRs, issues, commits, diffs, or task records). Reference them by path or URL
 instead. When Harness is active, cite the selected canonical task or
-tracker and its handoff rather than creating a competing work log.
+tracker and its handoff rather than creating a competing work log. For a local
+Harness task, include `#42 - Title` and its file path so the next agent can resolve
+the same identity; do not use list position or a plan step number as its ID.
 
 Redact any sensitive information, such as API keys, passwords, or personally identifiable information.
 

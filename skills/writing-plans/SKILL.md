@@ -23,7 +23,9 @@ artifact for every multi-step change.
 
 With Harness v2, a needed separate plan defaults to
 `docs/plans/task-<slug>.md` linked from `tasks/task-<slug>.md`. Reuse an
-adequate native path, including legacy plans. If ownership is unclear, use
+adequate native path, including legacy plans. Cite the enclosing local task ID
+(`Task #42`) in a linked plan; preserve the task ID and do not confuse plan step
+numbers with project task IDs. If ownership is unclear, use
 `agent-docs-architect` when available or return the path decision. Do not
 create `docs/superpowers/` or a parallel spec tree.
 
