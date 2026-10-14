@@ -6,6 +6,12 @@ Maintainer rule: every change that affects `templates/*` or rules mirrored into 
 
 Types: `breaking-rules` (AGENTS.md rules), `breaking-script` (init.sh structure), `additive` (new field/section), `non-breaking-doc` (skill-side docs only, no repo action).
 
+## 2.1.0
+
+| Change                           | Artifact                                       | Type     | Update action                                                                                                                     |
+|----------------------------------|------------------------------------------------|----------|-----------------------------------------------------------------------------------------------------------------------------------|
+| Task readiness inspection script | `scripts/task-ready.mjs`, `templates/agents.md` | additive | Run `node <harness-path>/scripts/task-ready.mjs [tasks/]` to inspect start candidates and active work without reading every task file. |
+
 ## 2.0.0
 
 Breaking update. Migrate managed repositories only with approval using

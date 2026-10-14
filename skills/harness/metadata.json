@@ -1,6 +1,6 @@
 {
   "name": "harness",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Create a compact task-local coding-agent harness with canonical documentation routes and minimal check-only Bash verification.",
   "license": "MIT",
   "author": "tungxuan1656",
@@ -46,7 +46,9 @@
     "canonical documentation"
   ],
   "bundled": {
-    "scripts": [],
+    "scripts": [
+      "scripts/task-ready.mjs"
+    ],
     "templates": [
       "templates/agents.md",
       "templates/task-template.md",
