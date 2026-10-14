@@ -6,12 +6,15 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export function extractTaskDependency(target) {
-  if (!target || /^[a-z]+:/i.test(target)) return null;
-  const cleanPath = target.split(/[?#]/)[0].replace(/^\.\//, "");
-  if (!cleanPath.includes("/") && /^task-.+\.md$/i.test(cleanPath)) {
+  if (!target || typeof target !== "string") return null;
+  const trimmed = target.trim();
+  if (/^(?:[a-z][a-z0-9+.-]*:|\/\/|\/)/i.test(trimmed)) return null;
+
+  const cleanPath = trimmed.split(/[?#]/)[0].replace(/^\.\//, "");
+  if (/^task-[^/]+\.md$/i.test(cleanPath)) {
     return cleanPath;
   }
-  const match = cleanPath.match(/(?:^|\/)tasks\/(task-.+\.md)$/i);
+  const match = cleanPath.match(/^(?:\.\.\/)?tasks\/(task-[^/]+\.md)$/i);
   if (match) {
     return match[1];
   }
@@ -35,6 +38,7 @@ export function parseTask(file, text) {
     `${file}: invalid status ${status}`,
   );
   const start = field("Required to start").replace(/<!--[\s\S]*?-->/g, "").trim();
+  const hasOr = /\bor\b/i.test(start);
   const dependencies = [];
   const remainingGate = start
     .replace(/\[[^\]]+\]\(([^)]+)\)/g, (match, target) => {
@@ -45,14 +49,14 @@ export function parseTask(file, text) {
       }
       return match;
     })
-    .replace(/\b(?:and|or)\b/gi, "")
+    .replace(/\b(?:and)\b/gi, "")
     .replace(/[&+,;.\s\-–—/()]/g, "");
   const manualGate =
-    !/^none\.?$/i.test(start.trim()) && (!dependencies.length || Boolean(remainingGate));
+    hasOr || (!/^none\.?$/i.test(start.trim()) && (!dependencies.length || Boolean(remainingGate)));
 
   // Historical snapshots below Handoff must not override current blockers.
   const handoff =
-    text.split(/^##\s+(?:Verification and\s+)?[Hh]andoff\b[^\n]*\r?$/m)[1]?.split(/^#{2,3} /m)[0] ?? "";
+    text.split(/^##\s+(?:Verification and\s+)?[Hh]andoff\b[^\n]*\r?$/m)[1]?.split(/^#{2,6}\s+/m)[0] ?? "";
   const blockers = [...handoff.replaceAll("**", "").matchAll(/^- Blockers:\s*(.+)\r?$/gm)];
   assert(blockers.length <= 1, `${file}: expected at most one current Blockers field`);
   const blocker = blockers[0]?.[1].trim();
@@ -75,6 +79,7 @@ export function parseTask(file, text) {
     start,
     dependencies,
     manualGate,
+    hasOr,
     blockerState,
     blockerText: blocker || "none",
   };
@@ -82,6 +87,7 @@ export function parseTask(file, text) {
 
 export function readiness(task, byFile) {
   if (task.status !== "todo") return "-";
+  if (task.hasOr) return "review start gate";
   if (task.dependencies.some((file) => byFile.get(file).status !== "done")) return "no";
   if (task.manualGate) return "review start gate";
   if (task.blockerState === "blocked") return "no (blocker)";
@@ -330,6 +336,35 @@ export function selfCheck() {
   assert.deepEqual(mixedGate.dependencies, ["task-a.md"]);
   assert.equal(mixedGate.manualGate, true);
   assert.equal(readiness(mixedGate, byFile), "review start gate");
+
+  const externalProtocolRelative = parseTask(
+    "task-t.md",
+    "# t - Example\n- Status: todo\n- Required to start: [External](//example.com/team/tasks/task-a.md)\n\n## Handoff\n- Blockers: none\n",
+  );
+  assert.deepEqual(externalProtocolRelative.dependencies, []);
+  assert.equal(externalProtocolRelative.manualGate, true);
+  assert.equal(readiness(externalProtocolRelative, byFile), "review start gate");
+
+  const orGate = parseTask(
+    "task-u.md",
+    "# u - Example\n- Status: todo\n- Required to start: [A](task-a.md) or [B](task-b.md)\n\n## Handoff\n- Blockers: none\n",
+  );
+  assert.equal(orGate.hasOr, true);
+  assert.equal(orGate.manualGate, true);
+  const activeTask = fixture("active-b", "active");
+  const testGraph = new Map([
+    ["task-a.md", done],
+    ["task-b.md", activeTask],
+    ["task-u.md", orGate],
+  ]);
+  assert.equal(readiness(orGate, testGraph), "review start gate");
+
+  const headingLevel4Handoff = parseTask(
+    "task-v.md",
+    "# v - Example\n- Status: todo\n- Required to start: none\n\n## Handoff\n\n- Blockers: none\n\n#### Historical snapshot\n\n- Blockers: historical issue\n",
+  );
+  assert.equal(headingLevel4Handoff.blockerState, "none");
+  assert.equal(readiness(headingLevel4Handoff, byFile), "yes");
 
   process.stdout.write("PASS task-ready self-checks\n");
 }
