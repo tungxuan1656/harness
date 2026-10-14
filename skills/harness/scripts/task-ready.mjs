@@ -5,6 +5,19 @@ import { readdir, readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+export function extractTaskDependency(target) {
+  if (!target || /^[a-z]+:/i.test(target)) return null;
+  const cleanPath = target.split(/[?#]/)[0].replace(/^\.\//, "");
+  if (!cleanPath.includes("/") && /^task-.+\.md$/i.test(cleanPath)) {
+    return cleanPath;
+  }
+  const match = cleanPath.match(/(?:^|\/)tasks\/(task-.+\.md)$/i);
+  if (match) {
+    return match[1];
+  }
+  return null;
+}
+
 export function parseTask(file, text) {
   const header = text.split(/^## /m)[0];
   const title = header.match(/^# (.+?) - (.+)\r?$/m);
@@ -22,15 +35,25 @@ export function parseTask(file, text) {
     `${file}: invalid status ${status}`,
   );
   const start = field("Required to start");
-  const dependencies = [...start.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)].map((match) =>
-    match[1].replace(/^\.\//, ""),
-  );
-  const remainingGate = start.replace(/\[[^\]]+\]\([^)]+\)/g, "").replace(/[,;\s]/g, "");
-  const manualGate = !/^none\.?$/i.test(start) && (!dependencies.length || Boolean(remainingGate));
+  const dependencies = [];
+  const remainingGate = start
+    .replace(/\[[^\]]+\]\(([^)]+)\)/g, (match, target) => {
+      const taskDep = extractTaskDependency(target);
+      if (taskDep) {
+        dependencies.push(taskDep);
+        return "";
+      }
+      return match;
+    })
+    .replace(/\b(?:and|or)\b/gi, "")
+    .replace(/[&+,;.\s\-–—/()]/g, "");
+  const manualGate =
+    !/^none\.?$/i.test(start.trim()) && (!dependencies.length || Boolean(remainingGate));
 
   // Historical snapshots below Handoff must not override current blockers.
-  const handoff = text.split(/^## Handoff\r?$/m)[1]?.split(/^#{2,3} /m)[0] ?? "";
-  const blockers = [...handoff.replaceAll("**", "").matchAll(/^- Blockers: (.+)\r?$/gm)];
+  const handoff =
+    text.split(/^##\s+(?:Verification and\s+)?[Hh]andoff\b[^\n]*\r?$/m)[1]?.split(/^#{2,3} /m)[0] ?? "";
+  const blockers = [...handoff.replaceAll("**", "").matchAll(/^- Blockers:\s*(.+)\r?$/gm)];
   assert(blockers.length <= 1, `${file}: expected at most one current Blockers field`);
   const blocker = blockers[0]?.[1].trim();
   let blockerState = "blocked";
@@ -277,6 +300,36 @@ export function selfCheck() {
   );
   assert.throws(() => fixture("n", "todo", "  "), /non-empty Required to start/);
   assert.equal(readiness(fixture("o", "todo", ",;"), byFile), "review start gate");
+
+  const nonTaskDep = parseTask(
+    "task-p.md",
+    "# p - Example\n- Status: todo\n- Required to start: [Approved spec](../docs/spec.md)\n\n## Handoff\n- Blockers: none\n",
+  );
+  assert.deepEqual(nonTaskDep.dependencies, []);
+  assert.equal(nonTaskDep.manualGate, true);
+  assert.equal(readiness(nonTaskDep, byFile), "review start gate");
+
+  const naturalLanguage = parseTask(
+    "task-q.md",
+    "# q - Example\n- Status: todo\n- Required to start: [a](./task-a.md#acceptance) and [b](task-b.md).\n\n## Handoff\n- Blockers: none\n",
+  );
+  assert.deepEqual(naturalLanguage.dependencies, ["task-a.md", "task-b.md"]);
+  assert.equal(naturalLanguage.manualGate, false);
+
+  const verificationHandoff = parseTask(
+    "task-r.md",
+    "# r - Example\n- Status: todo\n- Required to start: none\n\n## Verification and handoff\n\n- Evidence: verified\n- Blockers: none\n- Next: begin implementation\n",
+  );
+  assert.equal(verificationHandoff.blockerState, "none");
+  assert.equal(readiness(verificationHandoff, byFile), "yes");
+
+  const mixedGate = parseTask(
+    "task-s.md",
+    "# s - Example\n- Status: todo\n- Required to start: [a](task-a.md) and [RFC](docs/rfc.md)\n\n## Handoff\n- Blockers: none\n",
+  );
+  assert.deepEqual(mixedGate.dependencies, ["task-a.md"]);
+  assert.equal(mixedGate.manualGate, true);
+  assert.equal(readiness(mixedGate, byFile), "review start gate");
 
   process.stdout.write("PASS task-ready self-checks\n");
 }
