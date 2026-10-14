@@ -20,10 +20,13 @@ node <harness-path>/scripts/task-ready.mjs tasks/
 `create` writes the bundled task template and prints its allocated ID and path.
 Fill its scope, acceptance, sources, plan, and verification before implementation;
 a generated stub is not approval or evidence of readiness. `resolve` is read-only
-and returns the task's metadata and filename as JSON. It also accepts old heading
-IDs, slugs (`task-export-csv`), and filenames. Quote `'#42'` in shells: an unquoted
-`#` starts a comment. Read the resolved file and linked sources, check actual
-blockers and approval, then update only that task's status/evidence/handoff.
+and returns the task's metadata and filename as JSON. It accepts `#42`, raw integer
+`42`, old heading IDs, slugs (`task-export-csv`), filenames, and tasks archived
+under `tasks/archive/`. Unlike `task-ready`, `resolve` checks only ID validity and
+uniqueness so an unrelated task's broken dependency never blocks resolving an
+assigned task. Quote `'#42'` in shells: an unquoted `#` starts a comment. Read the
+resolved file and linked sources, check actual blockers and approval, then update
+only that task's status/evidence/handoff.
 
 Use `#42 - Export CSV` in ready lists, implementation reports, plans, delegation,
 and handoffs. Include the filename when someone needs to open it. Do not repeat
@@ -33,6 +36,9 @@ name, e.g. `my-app#42`; resolution is always against an explicit tasks directory
 
 Dependencies can use `#42 and #43` or clickable links such as
 `[#42 - Title](task-<slug>.md)`. Existing file links remain valid.
+External dependencies (e.g. GitHub issue `#42`) must be written as external links
+(`[#42](https://github.com/...)`) or manual gate text without bare hash numbers
+(e.g. `issue 42 on github`) so they are not confused with local task `#42`.
 Keep start gates separate from integrate/release gates; `task-ready` evaluates
 only start gates, not release permission. Unknown/self/cyclic start references
 and duplicate IDs fail validation. Keep manual conditions explicit.
@@ -50,8 +56,8 @@ node <harness-path>/scripts/task-ready.mjs tasks/ --all
 order. Re-running preserves existing numbers. It leaves headings, filenames,
 status, ownership, links, and history intact. Add IDs to roadmap link labels
 when updating navigation; no wholesale link rewrite is needed. Include retained
-archived tasks in the approved migration inventory before allocating new work;
-the script scans only the given directory, not arbitrary archive trees.
+archived tasks under `tasks/archive/` in the approved migration inventory before
+allocating new work; `assign` can be run directly on `tasks/archive/` if needed.
 Legacy tasks remain readable by `task-ready`, using their old heading ID until
 explicitly migrated. JSON keeps legacy `id` and adds `number` and `ref`.
 

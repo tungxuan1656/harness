@@ -5,21 +5,55 @@ import { resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseTask, validateTaskGraph } from "./task-ready.mjs";
 
-async function loadTasks(directory) {
-  const files = (await readdir(directory)).filter((file) => /^task-.+\.md$/.test(file)).sort();
-  const records = await Promise.all(files.map(async (file) => {
-    const text = await readFile(join(directory, file), "utf8");
+async function scanTaskFiles(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    if (entry.isFile() && /^task-.+\.md$/.test(entry.name)) {
+      files.push({ file: entry.name, path: join(directory, entry.name) });
+    }
+  }
+  const archiveDir = join(directory, "archive");
+  try {
+    const archiveEntries = await readdir(archiveDir, { withFileTypes: true });
+    for (const entry of archiveEntries) {
+      if (entry.isFile() && /^task-.+\.md$/.test(entry.name)) {
+        files.push({ file: join("archive", entry.name), path: join(archiveDir, entry.name) });
+      }
+    }
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
+  return files.sort((a, b) => a.file.localeCompare(b.file));
+}
+
+async function loadTasks(directory, { validate = true, includeArchive = false } = {}) {
+  let fileList;
+  if (includeArchive) {
+    fileList = await scanTaskFiles(directory);
+  } else {
+    const names = (await readdir(directory)).filter((file) => /^task-.+\.md$/.test(file)).sort();
+    fileList = names.map((file) => ({ file, path: join(directory, file) }));
+  }
+  const records = await Promise.all(fileList.map(async ({ file, path }) => {
+    const text = await readFile(path, "utf8");
     return { text, task: parseTask(file, text) };
   }));
-  validateTaskGraph(records.map(({ task }) => task));
+  if (validate) {
+    validateTaskGraph(records.map(({ task }) => task));
+  }
   return records;
 }
 
 export async function resolveTask(directory, reference) {
-  const records = await loadTasks(directory);
+  const ref = typeof reference === "number" || /^[1-9]\d*$/.test(String(reference).trim())
+    ? `#${String(reference).trim()}`
+    : String(reference).trim();
+  const records = await loadTasks(directory, { validate: false, includeArchive: true });
   const matches = records.filter(({ task }) =>
-    task.ref === reference || task.id === reference || task.file === reference ||
-    task.file === `${reference}.md`);
+    task.ref === ref || task.id === ref || task.file === ref ||
+    task.file === `${ref}.md` || task.file === join("archive", ref) ||
+    task.file === join("archive", `${ref}.md`));
   assert.equal(matches.length, 1, `Expected one task for ${reference}; found ${matches.length}`);
   return matches[0].task;
 }

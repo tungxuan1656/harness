@@ -104,6 +104,9 @@ test("CLI creates, migrates and resolves quoted IDs with meaningful failures", a
   const resolved = cli("resolve", dir, "#1");
   assert.equal(resolved.status, 0, resolved.stderr);
   assert.equal(JSON.parse(resolved.stdout).file, "task-export-csv.md");
+  const rawNumber = cli("resolve", dir, "1");
+  assert.equal(rawNumber.status, 0, rawNumber.stderr);
+  assert.equal(JSON.parse(rawNumber.stdout).number, 1);
   assert.equal(cli("assign", dir).status, 0);
   const missing = cli("resolve", dir, "#99");
   assert.equal(missing.status, 1);
@@ -178,4 +181,38 @@ test("a partial creation write never publishes a malformed task and leaves a res
   }
   const [task] = await allocateTasks(dir, { slug: "retry", title: "Retry", owner: "alice" });
   assert.equal(task.number, 2);
+});
+
+test("resolve finds tasks in archive/ and is not blocked by unrelated invalid dependencies", async (t) => {
+  const dir = await fixture(t);
+  // task-valid (#1) has valid syntax and no dependencies.
+  await writeFile(join(dir, "task-valid.md"), numbered("valid", 1, "todo", "none"));
+  // task-broken (#2) has an invalid unknown dependency (#99).
+  await writeFile(join(dir, "task-broken.md"), numbered("broken", 2, "todo", "#99"));
+
+  // Resolving task-valid works despite task-broken having a broken dependency graph.
+  const resolved = await resolveTask(dir, "#1");
+  assert.equal(resolved.file, "task-valid.md");
+  assert.equal(resolved.number, 1);
+
+  // Both '#1' and '1' resolve correctly.
+  const byRawNumber = await resolveTask(dir, "1");
+  assert.equal(byRawNumber.file, "task-valid.md");
+
+  // Move task-valid to archive/
+  const archiveDir = join(dir, "archive");
+  await mkdir(archiveDir);
+  await rename(join(dir, "task-valid.md"), join(archiveDir, "task-valid.md"));
+
+  // Resolving #1 or 1 still finds the archived task.
+  const archived = await resolveTask(dir, "#1");
+  assert.equal(archived.file, join("archive", "task-valid.md"));
+  assert.equal(archived.number, 1);
+  const archivedRaw = await resolveTask(dir, "1");
+  assert.equal(archivedRaw.file, join("archive", "task-valid.md"));
+
+  // CLI resolve also finds archived tasks.
+  const cliArchived = cli("resolve", dir, "#1");
+  assert.equal(cliArchived.status, 0, cliArchived.stderr);
+  assert.match(cliArchived.stdout, /task-valid\.md/);
 });
