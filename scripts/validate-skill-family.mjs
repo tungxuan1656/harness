@@ -147,8 +147,16 @@ function validateAgent(source, path) {
   }
 }
 
+function parseJson(source, path) {
+  try {
+    return JSON.parse(source);
+  } catch (error) {
+    throw new Error(`${path}: invalid JSON: ${error.message}`);
+  }
+}
+
 function validateEvals(source, path, expectedName) {
-  const corpus = JSON.parse(source);
+  const corpus = parseJson(source, path);
   assert(corpus.skill_name === expectedName, `${path}: skill_name mismatch`);
   assert(Array.isArray(corpus.evals) && corpus.evals.length > 0, `${path}: no evals`);
 
@@ -176,8 +184,8 @@ function validateEvals(source, path, expectedName) {
 
 async function validateHarnessContract(directory) {
   const metadataPath = resolve(directory, "metadata.json");
-  const metadata = JSON.parse(await readRequired(metadataPath));
-  assert(metadata.version === "2.0.0", `${metadataPath}: expected v2 contract`);
+  const metadata = parseJson(await readRequired(metadataPath), metadataPath);
+  assert(/^2\.\d+\.\d+$/.test(metadata.version), `${metadataPath}: expected v2 contract`);
   for (const path of [...metadata.references, ...metadata.bundled.templates, ...metadata.bundled.scripts]) {
     await readRequired(resolve(directory, path));
   }
@@ -237,7 +245,7 @@ async function validateSkill(skill) {
 
   if (skill.metadata) {
     const metadataPath = resolve(directory, "metadata.json");
-    const metadata = JSON.parse(await readRequired(metadataPath));
+    const metadata = parseJson(await readRequired(metadataPath), metadataPath);
     assert(metadata.name === skill.name, `${metadataPath}: name mismatch`);
   }
 

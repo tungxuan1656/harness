@@ -23,7 +23,9 @@ and file count do not determine planning cost.
 6. State the choice and strongest reason in one sentence; continue the work.
 
 Do not run broad verification just to classify a request. Ask only about facts
-that materially change scope, artifact level, or safe execution.
+that materially change scope, artifact level, or safe execution. When choosing next work
+or coordinating local tasks, run `node <path-to-harness>/scripts/task-ready.mjs [tasks-dir]`
+to find unblocked candidates without reading every task into context.
 
 ## Apply
 

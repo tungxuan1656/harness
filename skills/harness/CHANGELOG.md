@@ -6,6 +6,15 @@ Maintainer rule: every change that affects `templates/*` or rules mirrored into 
 
 Types: `breaking-rules` (AGENTS.md rules), `breaking-script` (init.sh structure), `additive` (new field/section), `non-breaking-doc` (skill-side docs only, no repo action).
 
+## 2.1.0
+
+| Change | Artifact | Type | Update action |
+|---|---|---|---|
+| Bundled task readiness CLI (`task-ready.mjs`) | `scripts/task-ready.mjs` | additive | Run `node <harness-path>/scripts/task-ready.mjs [tasks/]` (or `--json`, `--all`) to inspect active work and unblocked `todo` candidates without loading all task files into context. Validates graph cycles, missing dependencies, and duplicate IDs. |
+| Contextual task readiness guidance in AGENTS router | `templates/agents.md` §Concurrent work | additive | Update router to advise running `task-ready.mjs` when asked what to do next or choosing unblocked work; skip when working on an assigned task; clarify that technical readiness does not bypass user approval. |
+| Task dependency syntax hint in template | `templates/task-template.md` | additive | Add format guidance comment above `Required to start`: `'none'`, `'[Title](task-<slug>.md)'`, or manual gate text. Non-task links and external gates are recognized as manual review conditions. |
+| Task coordination intake guidance | `skills/harness-task/SKILL.md`, `skills/harness/SKILL.md` | non-breaking-doc | Reference `task-ready.mjs` for checking unblocked candidates during task sizing and backlog triage. |
+
 ## 2.0.0
 
 Breaking update. Migrate managed repositories only with approval using

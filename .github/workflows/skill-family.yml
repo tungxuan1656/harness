@@ -30,5 +30,6 @@ jobs:
           node-version: 20
       - run: node scripts/validate-skill-family.mjs
       - run: node --test scripts/test-*.mjs
+      - run: node skills/harness/scripts/task-ready.mjs --self-test
       - run: bash -n skills/harness/templates/init.sh
       - run: git diff --check
