@@ -6,6 +6,14 @@ Maintainer rule: every change that affects `templates/*` or rules mirrored into 
 
 Types: `breaking-rules` (AGENTS.md rules), `breaking-script` (init.sh structure), `additive` (new field/section), `non-breaking-doc` (skill-side docs only, no repo action).
 
+## 2.2.0
+
+| Change | Artifact | Type | Update action |
+|---|---|---|---|
+| Permanent project-local numeric task IDs | Task template, `scripts/task-id.mjs` | additive | With approval run `task-id.mjs assign tasks/` for existing tasks; create future tasks via `task-id.mjs create`. Commit `.task-ids.json`; preserve filenames, state, and links. |
+| ID-based lookup, dependencies, and concise readiness | `scripts/task-ready.mjs`, `scripts/task-id.mjs` | additive | Use `#42` in conversation/start gates; resolve quoted IDs before implementation. Legacy headings/file links remain supported; JSON retains legacy `id` and adds `number`/`ref`. |
+| ID lifecycle and allocator coordination | `templates/agents.md`, task index, creation/execution/handoff skills | breaking-rules | Route agents to permanent IDs; never renumber/reuse or hand-allocate. Allocate in the canonical checkout before parallel worktrees/clones. Update managed router with approval, not wholesale regeneration. |
+
 ## 2.1.0
 
 | Change | Artifact | Type | Update action |

@@ -194,7 +194,7 @@ async function validateHarnessContract(directory) {
   }
   const taskPath = resolve(directory, "templates/task-template.md");
   const task = await readRequired(taskPath);
-  for (const field of ["Status", "Owner", "Required to start", "Required to integrate/release"]) {
+  for (const field of ["ID", "Status", "Owner", "Required to start", "Required to integrate/release"]) {
     assert(task.includes(`- ${field}:`), `${taskPath}: missing ${field}`);
   }
   const indexPath = resolve(directory, "templates/task-index.md");

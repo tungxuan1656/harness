@@ -22,7 +22,10 @@ that approach. This skill remains self-contained when it is not installed.
 1. Confirm the approved workspace. Use the current working tree or create a
    native git worktree when repository policy, task risk, or user scope calls
    for isolation.
-2. Read the canonical inline or separate plan and linked acceptance. Do not
+2. When assigned a Harness local task ID (`#42`), resolve it with the installed
+   harness `task-id.mjs resolve tasks/ '#42'` and read the returned task file.
+   Keep that ID in execution reports and handoffs; do not create a replacement task.
+   Read the canonical inline or separate plan and linked acceptance. Do not
    create another plan or root progress log just for execution.
 3. Review critically - identify any questions or concerns about the plan
 4. If concerns: Raise them with your human partner before starting

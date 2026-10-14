@@ -195,6 +195,20 @@
         "handoff",
         "lifecycle"
       ]
+    },
+    {
+      "id": 13,
+      "name": "Assigned issue-style ID resolves to existing task",
+      "prompt": "Implement #42. Our Harness local backlog has permanent numeric IDs and a long descriptive filename for that task. Do not create new work.",
+      "expected_output": "Resolve the quoted ID through the installed task-id.mjs, read that task and linked acceptance, check approval and blockers, implement within its scope and report under #42.",
+      "files": [],
+      "expectations": [
+        "Does not infer identity from readiness list position",
+        "Does not allocate or renumber the assigned task",
+        "Preserves canonical state and uses #42 in implementation and handoff",
+        "Treats readiness as start eligibility, not automatic approval or done evidence"
+      ],
+      "tags": ["task-ids", "execution", "handoff"]
     }
   ]
 }

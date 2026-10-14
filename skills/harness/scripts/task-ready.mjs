@@ -32,6 +32,12 @@ export function parseTask(file, text) {
     assert(value, `${file}: expected non-empty ${name} field`);
     return value;
   };
+  const idFields = [...header.matchAll(/^- ID:([^\n]*)/gm)];
+  assert(idFields.length <= 1, `${file}: expected at most one ID field`);
+  const rawNumber = idFields[0]?.[1].trim();
+  const number = rawNumber === undefined ? null : Number(rawNumber);
+  assert(number === null || (/^[1-9]\d*$/.test(rawNumber) && Number.isSafeInteger(number)),
+    `${file}: ID must be a positive safe integer`);
   const status = field("Status");
   assert(
     ["todo", "active", "blocked", "done"].includes(status),
@@ -41,13 +47,17 @@ export function parseTask(file, text) {
   const hasOr = /\bor\b/i.test(start);
   const dependencies = [];
   const remainingGate = start
-    .replace(/\[[^\]]+\]\(([^)]+)\)/g, (match, target) => {
+    .replace(/\[[^\]]+\]\(([^)]+)\)/g, (_match, target) => {
       const taskDep = extractTaskDependency(target);
       if (taskDep) {
         dependencies.push(taskDep);
         return "";
       }
-      return match;
+      return "manual gate";
+    })
+    .replace(/#[1-9]\d*\b/g, (ref) => {
+      dependencies.push(ref);
+      return "";
     })
     .replace(/\b(?:and)\b/gi, "")
     .replace(/[&+,;.\s\-–—/()]/g, "");
@@ -72,7 +82,9 @@ export function parseTask(file, text) {
 
   return {
     file,
-    id: title[1].trim(),
+    id: title[1].trim(), // Legacy heading ID remains available to existing consumers.
+    number,
+    ref: number === null ? title[1].trim() : `#${number}`,
     title: title[2].trim(),
     owner,
     status,
@@ -97,11 +109,20 @@ export function readiness(task, byFile) {
 export function validateTaskGraph(tasks) {
   const byFile = new Map(tasks.map((task) => [task.file, task]));
   assert.equal(new Set(tasks.map((task) => task.id)).size, tasks.length, "Duplicate task IDs");
+  const numbered = tasks.filter((task) => task.number !== null);
+  assert.equal(new Set(numbered.map((task) => task.number)).size, numbered.length, "Duplicate numeric task IDs");
+  const byRef = new Map(numbered.map((task) => [task.ref, task]));
   for (const task of tasks) {
+    task.dependencies = task.dependencies.map((dependency) => {
+      if (!dependency.startsWith("#")) return dependency;
+      assert(byRef.has(dependency), `${task.file}: unknown dependency ${dependency}`);
+      return byRef.get(dependency).file;
+    });
     for (const dependency of task.dependencies) {
       assert(byFile.has(dependency), `${task.file}: unknown dependency ${dependency}`);
       assert.notEqual(dependency, task.file, `${task.file}: task depends on itself`);
     }
+    task.dependencyRefs = task.dependencies.map((file) => byFile.get(file).ref);
   }
   const visited = new Set();
   const visiting = new Set();
@@ -149,7 +170,7 @@ export function categorizeTasks(tasks, byFile) {
     } else {
       const pendingDeps = task.dependencies
         .filter((dep) => byFile.get(dep).status !== "done")
-        .map((dep) => `${byFile.get(dep).id} (${byFile.get(dep).status})`);
+        .map((dep) => `${byFile.get(dep).ref} (${byFile.get(dep).status})`);
       waiting.push({ ...task, pendingDeps });
     }
   }
@@ -163,7 +184,7 @@ export function formatReport(categorized, options = {}) {
   if (categorized.active.length > 0) {
     lines.push("## In Progress (Active)");
     for (const task of categorized.active) {
-      lines.push(`- [${task.id}] ${task.title} (owner: ${task.owner}, file: ${task.file})`);
+      lines.push(`- [${task.ref}] ${task.title} (owner: ${task.owner}, file: ${task.file})`);
     }
     lines.push("");
   }
@@ -173,11 +194,11 @@ export function formatReport(categorized, options = {}) {
     lines.push("No tasks currently ready to start.");
   } else {
     for (const task of categorized.ready) {
-      const deps = task.dependencies.length ? `deps: ${task.dependencies.join(", ")}` : "no deps";
-      lines.push(`- [READY] [${task.id}] ${task.title} (${deps}, owner: ${task.owner})`);
+      const deps = task.dependencies.length ? `deps: ${(task.dependencyRefs || task.dependencies).join(", ")}` : "no deps";
+      lines.push(`- [READY] [${task.ref}] ${task.title} (${deps}, owner: ${task.owner})`);
     }
     for (const task of categorized.reviewBlockers) {
-      lines.push(`- [REVIEW BLOCKERS] [${task.id}] ${task.title} (blocker: ${task.blockerText}, owner: ${task.owner})`);
+      lines.push(`- [REVIEW BLOCKERS] [${task.ref}] ${task.title} (blocker: ${task.blockerText}, owner: ${task.owner})`);
     }
   }
   lines.push("");
@@ -185,11 +206,11 @@ export function formatReport(categorized, options = {}) {
   if (categorized.waiting.length > 0 || categorized.blocked.length > 0) {
     lines.push("## Waiting / Blocked");
     for (const task of categorized.waiting) {
-      lines.push(`- [WAITING] [${task.id}] ${task.title} (waiting on: ${task.pendingDeps.join(", ")})`);
+      lines.push(`- [WAITING] [${task.ref}] ${task.title} (waiting on: ${task.pendingDeps.join(", ")})`);
     }
     for (const task of categorized.blocked) {
       const reason = task.reason || task.blockerText || "blocked";
-      lines.push(`- [BLOCKED] [${task.id}] ${task.title} (${reason})`);
+      lines.push(`- [BLOCKED] [${task.ref}] ${task.title} (${reason})`);
     }
     lines.push("");
   }
@@ -197,7 +218,7 @@ export function formatReport(categorized, options = {}) {
   if (options.all && categorized.done.length > 0) {
     lines.push("## Completed");
     for (const task of categorized.done) {
-      lines.push(`- [DONE] [${task.id}] ${task.title}`);
+      lines.push(`- [DONE] [${task.ref}] ${task.title}`);
     }
     lines.push("");
   }

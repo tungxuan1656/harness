@@ -38,8 +38,8 @@ docs/plans/task-<slug>.md      # only when separate sequencing is justified
   blockers, and next action. No root `progress.md` or mirrored tracker state.
 - Keep the requested index for roadmap and links; update it for membership or
   scope changes, not every execution update. Dependencies remain in tasks/tracker.
-- Independent tasks can be active concurrently. Descriptive or tracker IDs
-  replace global counters; coordinate overlapping source changes separately.
+- Independent tasks can be active concurrently. Use persistent local `#42` IDs
+  or canonical tracker IDs; coordinate overlapping source changes separately.
 - Distinguish dependencies needed to start from integration/release gates.
   Split specs into verifiable deliverables; use epics/subtasks only when useful.
 - Plans stay inline by default. A separate plan needs durable sequencing,
@@ -51,6 +51,28 @@ At closure extract that knowledge, check inbound links/dependents and retention
 policy, then retain, selectively archive, or remove disposable tasks.
 Cross-person handoffs need an accessible tracker, PR, branch, or commit, not
 a local temporary file; disclose uncommitted work.
+
+## Task IDs
+
+Local tasks store a permanent positive integer (`- ID: 42`) and are referenced
+as `#42 - Title`. Slugs/filenames remain descriptive; renaming or completing a
+task never changes its ID. Create and resolve records with the bundled CLI:
+
+```bash
+node skills/harness/scripts/task-id.mjs create tasks/ export-csv "Export CSV" "alice"
+node skills/harness/scripts/task-id.mjs resolve tasks/ '#42'
+node skills/harness/scripts/task-ready.mjs tasks/
+# Explicitly upgrade existing unnumbered tasks without renaming their files:
+node skills/harness/scripts/task-id.mjs assign tasks/
+```
+
+In installed projects, replace `skills/harness` with the installed skill path.
+Commit `tasks/.task-ids.json` to prevent reuse after deletion. Never hand-allocate
+or reset IDs. The allocator serializes one checkout; allocate in the canonical
+checkout before parallel worktrees/clones. External trackers keep their own IDs.
+See [task IDs](skills/harness/references/task-ids.md) for migration, dependencies,
+legacy lookup, and recovery. Agent instructions cover creation, selection,
+implementation, delegation, and handoff with the same identity.
 
 ## Verification
 

@@ -40,7 +40,7 @@
       "expected_output": "Navigation index, separate task-local status/owners/dependencies, no root progress log.",
       "files": [],
       "expectations": [
-        "No global counter or one-active limit",
+        "Permanent project-local numeric IDs allocated in the canonical checkout; no one-active limit",
         "Index changes only for roadmap membership/scope",
         "Notes task files do not prevent source conflicts"
       ],
@@ -80,6 +80,20 @@
         "reuse",
         "minimality"
       ]
+    },
+    {
+      "id": 6,
+      "name": "Permanent IDs survive task lifecycle",
+      "prompt": "Upgrade our local tasks to issue-style IDs, then rename task #42 and remove completed task #99 before creating new work.",
+      "expected_output": "Use the allocator for approved migration and creation, preserve #42 across rename, retain the committed high-water counter so #99 is never reused.",
+      "files": [],
+      "expectations": [
+        "Never derives identity from list order or slug",
+        "Preserves task state, filenames and existing links during migration",
+        "Uses #ID - Title in task lists and handoffs",
+        "Coordinates allocation in one canonical checkout before parallel worktrees"
+      ],
+      "tags": ["task-ids", "migration", "concurrency"]
     }
   ]
 }
